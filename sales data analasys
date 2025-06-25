@@ -1,0 +1,50 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Load the sales dataset
+df = pd.read_csv('sales_data.csv')
+
+# Show the first few rows
+print(df.head())
+
+# Check for missing values
+print("\nMissing values:\n", df.isnull().sum())
+
+# Convert 'Date' column to datetime format if needed
+df['Date'] = pd.to_datetime(df['Date'])
+
+# Extract month and year for trend analysis
+df['Month'] = df['Date'].dt.month
+df['Year'] = df['Date'].dt.year
+
+# Total revenue column
+df['Revenue'] = df['Quantity Ordered'] * df['Price Each']
+
+# Monthly sales trend
+monthly_sales = df.groupby(['Year', 'Month'])['Revenue'].sum().reset_index()
+sns.lineplot(data=monthly_sales, x='Month', y='Revenue', hue='Year', marker='o')
+plt.title('Monthly Sales Trend')
+plt.ylabel('Revenue')
+plt.xlabel('Month')
+plt.grid(True)
+plt.show()
+
+# Top 5 products by revenue
+product_sales = df.groupby('Product')['Revenue'].sum().sort_values(ascending=False).head(5)
+product_sales.plot(kind='bar', color='skyblue')
+plt.title('Top 5 Products by Revenue')
+plt.ylabel('Revenue')
+plt.xlabel('Product')
+plt.xticks(rotation=45)
+plt.show()
+
+# Sales by City
+df['City'] = df['Purchase Address'].apply(lambda x: x.split(',')[1])
+city_sales = df.groupby('City')['Revenue'].sum()
+city_sales.plot(kind='bar', color='orange')
+plt.title('Sales by City')
+plt.ylabel('Revenue')
+plt.xticks(rotation=45)
+plt.tight_layout()
+plt.show()
